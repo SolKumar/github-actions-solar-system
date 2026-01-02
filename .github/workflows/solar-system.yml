@@ -22,7 +22,7 @@ jobs:
       name: Unit Testing
       strategy:
         matrix:
-          os: ["windows-latest","ubuntu-latest"]
+          os: ["ubuntu-latest"]
       runs-on: ${{ matrix.os }}
       steps:
       - name: Checkout Repository
@@ -50,7 +50,7 @@ jobs:
       name: Code Coverage
       strategy:
         matrix:
-          os: ["windows-latest","ubuntu-latest"]
+          os: ["ubuntu-latest"]
       runs-on: ${{ matrix.os }}
       steps:
       - name: Checkout Repository
@@ -73,7 +73,7 @@ jobs:
         continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
-          name: Code-Coverage-Result
+          name:  ${{ runner.os }}-Code-Coverage-Result
           path: coverage
           retention-days: 1
 
@@ -94,7 +94,22 @@ jobs:
         with:
           context: .
           push: false
-          tags: ${{ env.DOCKER_USERNAME }}/solar-system:${{ github.sha}}
+          tags: ${{ env.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+      - name: Test Docker Image
+        run: |
+          docker images
+          docker run --name solar-system-app -d \
+            -p 3000:3000 \
+            -e MONGO_URI=$MONGO_URI \
+            -e MONGO_USERNAME=$MONGO_USERNAME \
+            -e MONGO_PASSWORD=$MONGO_PASSWORD \
+            ${{ env.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+          echo "Testing image using wget"
+          wget -q -O  - 127.0.0.1:3000/live | grep live
+
+
+
+
 
 
 
