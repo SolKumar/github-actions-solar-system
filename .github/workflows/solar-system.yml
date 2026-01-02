@@ -106,6 +106,13 @@ jobs:
             ${{ env.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
           echo "Testing image using wget"
           wget -q -O  - 127.0.0.1:3000/live | grep live
+      - name: Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ env.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+
 
 
 
