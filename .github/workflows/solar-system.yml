@@ -31,16 +31,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Cache Dependencies
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          cache: 'npm'
       - name: Install Dependencies
         run: npm install
       - name: Unit Testing
         run: npm test
       - name: Archive Test Result
+        if : always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-Mocha-Test-Result
@@ -67,17 +64,16 @@ jobs:
       - name: Install Dependencies
         run: npm install
       - name: Code Coverage Verification
-        continue-on-error: true
         run: npm run coverage
       - name: Archive Test Result
-        continue-on-error: true
+        if : always()
         uses: actions/upload-artifact@v4
         with:
           name:  ${{ runner.os }}-Code-Coverage-Result
           path: coverage
           retention-days: 1
 
-    docker-login:
+    docker:
       name: Login to Dockerhub
       needs: [unit-testing, code-coverage]
       runs-on: ubuntu-latest
